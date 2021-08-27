@@ -123,45 +123,38 @@ void ActualiserPeriode(struct PeriodeEtude* MaPeriode)
 void AfficherListe(struct PeriodeEtude* PtrTete, int debutLigne, int tailleLigne)
 {
     struct PeriodeEtude* currentPeriode;
-    char UnePeriodeString[120], day[10];
+    char UnePeriodeString[120], dayNew[10] = "", dayOld[10] = "";
 
     if(PtrTete == NULL)
         printf("Liste vide !\n");
     else
     {
-        DayToString(PtrTete->Day, day);
+        IHorizontal("Affichage d'une semaine", tailleLigne + 2*debutLigne);
 
-        printf("~~~                                              ~~~\n");
-        printf("~~~~                                            ~~~~\n");
-        printf("~~~~~~~                                      ~~~~~~~\n");
-        printf("~~~~~~~~~~~~~                          ~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~~~~ %s ~~~~~~~~~~~~~~~~~~~~~\n", day);
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~                          ~~~~~~~~~~~~~\n");
-        printf("~~~~~~~                                      ~~~~~~~\n");
-        printf("~~~~                                            ~~~~\n");
-        printf("~~~                                              ~~~\n");
         currentPeriode = PtrTete;
         while(currentPeriode->Next != NULL)
         {
+            strcpy(dayOld, dayNew);
+            DayToString(currentPeriode->Day, dayNew);
+
+            if(strcmp(dayOld, dayNew) != 0)
+                PrintfLigne(-1, debutLigne, dayNew, tailleLigne);
+
             PeriodeToString(currentPeriode, UnePeriodeString);
-            PrintfLigne(-1, debutLigne, UnePeriodeString, tailleLigne);
+            PrintfLigne(-1, debutLigne + 5, UnePeriodeString, tailleLigne - 10);
             currentPeriode = currentPeriode->Next;
         }
+
+        strcpy(dayOld, dayNew);
+        DayToString(currentPeriode->Day, dayNew);
+
+        if(strcmp(dayOld, dayNew) != 0)
+            PrintfLigne(-1, debutLigne, dayNew, tailleLigne);
+
         PeriodeToString(currentPeriode, UnePeriodeString);
-        PrintfLigne(-1, debutLigne, UnePeriodeString, tailleLigne);
-        printf("~~~                                              ~~~\n");
-        printf("~~~~                                            ~~~~\n");
-        printf("~~~~~~~                                      ~~~~~~~\n");
-        printf("~~~~~~~~~~~~~                          ~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~                          ~~~~~~~~~~~~~\n");
-        printf("~~~~~~~                                      ~~~~~~~\n");
-        printf("~~~~                                            ~~~~\n");
-        printf("~~~                                              ~~~\n");
+        PrintfLigne(-1, debutLigne + 5, UnePeriodeString, tailleLigne - 10);
+
+        IHorizontal(NULL, tailleLigne + 2*debutLigne);
     }
 }
 

@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include "FonctionsUtilitaires.h"
+#include "FonctionsAffichage.h"
 
 struct PeriodeEtude
 {

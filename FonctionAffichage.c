@@ -47,7 +47,7 @@ void IHorizontal(char* Message, int sizeEspace)
     printf(buffer);
     printf("~~~~~~~~~~~~~~~~~~~~~\n");
 
-    for(i = 0; i < sizeEspace + 18; i++)
+    for(i = 0; i < sizeEspace + 18; i++) // Car les bords font 9
         buffer[i] = '~';
     buffer[i] = '\n';
     buffer[i+1] = '\0';
@@ -248,7 +248,7 @@ void PrintfLigne(int num, int debutLigne, char* ligne, int longueurMaxLigne)
 
         if(ligne[i] == '\0') // Alors il faut remplir de ' '
         {
-            while(j < longueurMaxLigne)
+            while(j < longueurMaxLigne + 2)
             {
                 buffer[j] = ' ';
                 j++;
@@ -271,29 +271,20 @@ void AfficherSemaine(int Date[3])
     struct PeriodeEtude* ptrTete = NULL;
 
     if(IsDateValid(Date))
-    {
         RechercherPeriodeFichier(&ptrTete, Date);
-
-        if(ptrTete != NULL)
-        {
-            AfficherListe(ptrTete, 10, 50);
-
-            DesallouerListe(&ptrTete);
-        }
-    }
 
     for(i = 0; i < 6; i++)
     {
         DecrementerDate(Date);
 
         RechercherPeriodeFichier(&ptrTete, Date);
+    }
 
-        if(ptrTete != NULL)
-        {
-            AfficherListe(ptrTete, 10, 50);
+    if(ptrTete != NULL)
+    {
+        AfficherListe(ptrTete, 10, 70);
 
-            DesallouerListe(&ptrTete);
-        }
+        DesallouerListe(&ptrTete);
     }
 }
 
