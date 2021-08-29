@@ -24,6 +24,7 @@ struct PeriodeEtude
 void PeriodeToStringSansDate(struct PeriodeEtude* UnePeriode, char* TheString);
 void PeriodeToHeure(struct PeriodeEtude* UnePeriode, char* TheString);
 void PeriodeToString(struct PeriodeEtude* UnePeriode, char* TheString);
+void PeriodeToJourMois(struct PeriodeEtude* UnePeriode, char* TheString);
 
 // Gestion liste
 void Ajouter(struct PeriodeEtude** PtrTete, struct PeriodeEtude* newPeriode);

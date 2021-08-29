@@ -16,6 +16,7 @@ int isleap(int y) ;
 int IsDateValid(int Date[3]);
 int DecrementerDate(int Date[3]);
 void DayToString(int day, char* dayString);
+void MonthToString(int month, char* monthstring);
 
 #endif // UTILITAIRES
 

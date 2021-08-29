@@ -123,7 +123,7 @@ void ActualiserPeriode(struct PeriodeEtude* MaPeriode)
 void AfficherListe(struct PeriodeEtude* PtrTete, int debutLigne, int tailleLigne)
 {
     struct PeriodeEtude* currentPeriode;
-    char UnePeriodeString[120], dayNew[10] = "", dayOld[10] = "";
+    char UnePeriodeString[120], JourMois[40] = "", AncienJourMois[40] = "";
 
     if(PtrTete == NULL)
         printf("Liste vide !\n");
@@ -134,24 +134,24 @@ void AfficherListe(struct PeriodeEtude* PtrTete, int debutLigne, int tailleLigne
         currentPeriode = PtrTete;
         while(currentPeriode->Next != NULL)
         {
-            strcpy(dayOld, dayNew);
-            DayToString(currentPeriode->Day, dayNew);
+            strcpy(AncienJourMois, JourMois);
+            PeriodeToJourMois(currentPeriode, JourMois);
 
-            if(strcmp(dayOld, dayNew) != 0)
-                PrintfLigne(-1, debutLigne, dayNew, tailleLigne);
+            if(strcmp(AncienJourMois, JourMois) != 0)
+                PrintfLigne(-1, debutLigne, JourMois, tailleLigne);
 
-            PeriodeToString(currentPeriode, UnePeriodeString);
+            PeriodeToStringSansDate(currentPeriode, UnePeriodeString);
             PrintfLigne(-1, debutLigne + 5, UnePeriodeString, tailleLigne - 10);
             currentPeriode = currentPeriode->Next;
         }
 
-        strcpy(dayOld, dayNew);
-        DayToString(currentPeriode->Day, dayNew);
+        strcpy(AncienJourMois, JourMois);
+        PeriodeToJourMois(currentPeriode, JourMois);
 
-        if(strcmp(dayOld, dayNew) != 0)
-            PrintfLigne(-1, debutLigne, dayNew, tailleLigne);
+        if(strcmp(AncienJourMois, JourMois) != 0)
+            PrintfLigne(-1, debutLigne, JourMois, tailleLigne);
 
-        PeriodeToString(currentPeriode, UnePeriodeString);
+        PeriodeToStringSansDate(currentPeriode, UnePeriodeString);
         PrintfLigne(-1, debutLigne + 5, UnePeriodeString, tailleLigne - 10);
     }
 }
@@ -179,5 +179,25 @@ void DesallouerListe(struct PeriodeEtude** PtrTete)
 
         *PtrTete = NULL;
     }
+}
+
+
+void PeriodeToJourMois(struct PeriodeEtude* UnePeriode, char* TheString)
+{
+    char month[12], dayNumber[3];
+
+    DayToString(UnePeriode->Day, TheString);
+
+    MonthToString(UnePeriode->Date[1], month);
+
+    strcat(TheString, " ");
+
+    itoa(UnePeriode->Date[0], dayNumber, 10);
+
+    strcat(TheString, dayNumber);
+
+    strcat(TheString, " ");
+
+    strcat(TheString, month);
 }
 

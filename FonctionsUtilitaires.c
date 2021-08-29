@@ -144,29 +144,75 @@ void DayToString(int day, char* dayString)
     switch(day)
     {
         case 1:
-            strcpy(dayString, "Monday");
+            strcpy(dayString, "Lundi");
             break;
         case 2:
-            strcpy(dayString, "Tuesday");
+            strcpy(dayString, "Mardi");
             break;
         case 3:
-            strcpy(dayString, "Wednesday");
+            strcpy(dayString, "Mercredi");
             break;
         case 4:
-            strcpy(dayString, "Thursday");
+            strcpy(dayString, "Jeudi");
             break;
         case 5:
-            strcpy(dayString, "Friday");
+            strcpy(dayString, "Vendredi");
             break;
         case 6:
-            strcpy(dayString, "Saturday");
+            strcpy(dayString, "Samedi");
             break;
         case 7:
-            strcpy(dayString, "Sunday");
+            strcpy(dayString, "Dimanche");
             break;
         default:
             printf("Day = %d\n", day);
             strcpy(dayString, "Probleme de date ?");
             break;
+    }
+}
+
+void MonthToString(int month, char* monthstring)
+{
+    switch(month)
+    {
+        case 1:
+            strcpy(monthstring, "Janvier");
+            break;
+        case 2:
+            strcpy(monthstring, "Fevrier");
+            break;
+        case 3:
+            strcpy(monthstring, "Mars");
+            break;
+        case 4:
+            strcpy(monthstring, "Avril");
+            break;
+        case 5:
+            strcpy(monthstring, "Mai");
+            break;
+        case 6:
+            strcpy(monthstring, "Juin");
+            break;
+        case 7:
+            strcpy(monthstring, "Juillet");
+            break;
+        case 8:
+            strcpy(monthstring, "Aout");
+            break;
+        case 9:
+            strcpy(monthstring, "Septembre");
+            break;
+        case 10:
+            strcpy(monthstring, "Octobre");
+            break;
+        case 11:
+            strcpy(monthstring, "Novembre");
+            break;
+        case 12:
+            strcpy(monthstring, "Decembre");
+            break;
+        default:
+            printf("Month = %d\n", month);
+            strcpy(monthstring, "Probleme de mois ?");
     }
 }
