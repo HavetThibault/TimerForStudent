@@ -129,32 +129,17 @@ int Menu()
 
     do
     {
-        printf("~~~                                              ~~~\n");
-        printf("~~~~                                            ~~~~\n");
-        printf("~~~~~~~                                      ~~~~~~~\n");
-        printf("~~~~~~~~~~~~~                          ~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~~~~~ MENU ~~~~~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~                          ~~~~~~~~~~~~~\n");
-        printf("~~~~~~~                                      ~~~~~~~\n");
-        printf("~~~~                                            ~~~~\n");
-        printf("~~~                1. Etudier                    ~~~\n");
-        printf("~~                 2. Semaine                     ~~\n");
-        printf("~~                 3. Heures d'etudes             ~~\n");
-        printf("~~                 4. Jeux                        ~~\n");
-        printf("~~~                5. Exit                       ~~~\n");
-        printf("~~~~                                            ~~~~\n");
-        printf("~~~~~~~                                      ~~~~~~~\n");
-        printf("~~~~~~~~~~~~~                          ~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~                          ~~~~~~~~~~~~~\n");
-        printf("~~~~~~~                                      ~~~~~~~\n");
-        printf("~~~~                                            ~~~~\n");
-        printf("~~~                                              ~~~\n");
-        printf("                     CHOIX : ");
+        IHorizontal("MENU", LARGEUR_AFFICHAGE + 2*DEBUT_LIGNE);
+
+        PrintfLigne(1, DEBUT_LIGNE, "Etudier", LARGEUR_AFFICHAGE);
+        PrintfLigne(2, DEBUT_LIGNE, "Semaine", LARGEUR_AFFICHAGE);
+        PrintfLigne(3, DEBUT_LIGNE, "Heures d'etudes", LARGEUR_AFFICHAGE);
+        PrintfLigne(4, DEBUT_LIGNE, "Jeux", LARGEUR_AFFICHAGE);
+        PrintfLigne(5, DEBUT_LIGNE, "Exit", LARGEUR_AFFICHAGE);
+
+        IHorizontal("CHOIX", LARGEUR_AFFICHAGE + 2*DEBUT_LIGNE);
+
+        printf("~~~~~~~~~                  CHOIX : ");
 
         fflush(stdin);
         scanf("%d", &choix);
@@ -170,54 +155,28 @@ int MenuEtude()
 
     do
     {
-        printf("~~~~~~~~~                                                        ~~~~~~~~~\n");
-        printf("~~~~~~~~~~~                                                    ~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~                                                ~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~                                    ~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ MENU ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~                                    ~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~                                                ~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~                                                      ~~~~~~~~~~\n");
-        printf("~~~~~~~~~                                                        ~~~~~~~~~\n");
-        printf("~~~~~~~~~                 1. Periode de 1h                       ~~~~~~~~~\n");
-        printf("~~~~~~~~~                 2. Periode de 2h                       ~~~~~~~~~\n");
-        printf("~~~~~~~~~                                                        ~~~~~~~~~\n");
-        printf("~~~~~~~~~~                                                      ~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~                                                ~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~                                    ~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~                                    ~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~                                                ~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~                                                    ~~~~~~~~~~~\n");
-        printf("~~~~~~~~~                                                        ~~~~~~~~~\n");
-        printf("                         CHOIX : ");
+        IHorizontal("", LARGEUR_AFFICHAGE + 2*DEBUT_LIGNE);
+
+        PrintfLigne(1, DEBUT_LIGNE, "Periode de 1h", LARGEUR_AFFICHAGE);
+        PrintfLigne(2, DEBUT_LIGNE, "Periode de 2h", LARGEUR_AFFICHAGE);
+        PrintfLigne(3, DEBUT_LIGNE, "CANCEL", LARGEUR_AFFICHAGE);
+
+        IHorizontal("CHOIX", LARGEUR_AFFICHAGE + 2*DEBUT_LIGNE);
+
+        printf("~~~~~~~~~                     CHOIX : ");
 
         fflush(stdin);
         scanf("%d", &choix);
 
-    }while(choix < 1 || choix > 2);
+    }while(choix < 1 || choix > 3);
 
     return choix;
 }
 
 void MenuTheme(char* theme)
 {
-        printf("~~~~~~~~~                                                        ~~~~~~~~~\n");
-        printf("~~~~~~~~~~~                                                    ~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~                                                ~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~                                    ~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~~~~~~~                                    ~~~~~~~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~~~                                                ~~~~~~~~~~~~~\n");
-        printf("~~~~~~~~~~~                                                    ~~~~~~~~~~~\n");
-        printf("~~~~~~~~~                                                        ~~~~~~~~~\n");
-        printf("               Theme de l'etude : ");
+        IHorizontal(NULL, LARGEUR_AFFICHAGE + 2*DEBUT_LIGNE);
+        printf("~~~~~~~~~             Theme de l'etude : ");
 
         SaisieSansEnter(theme, 100);
 }
@@ -229,7 +188,7 @@ void PrintfLigne(int num, int debutLigne, char* ligne, int longueurMaxLigne)
 
     while(ligne[i] != '\0')
     {
-        printf("~~~~~~~~");
+        printf("~~~~~~~~~");
 
         for(j = 0; j < debutLigne; j++) // On ne compte pas les '~'
             buffer[j] = ' ';
@@ -241,14 +200,16 @@ void PrintfLigne(int num, int debutLigne, char* ligne, int longueurMaxLigne)
         {
             printf("%d. ", num);
             debutLigne += 3;
+            longueurMaxLigne -= 3;
         }
 
         for(j = 0; j < longueurMaxLigne && ligne[i] != '\0'; j++, i++)
             buffer[j] = ligne[i];
 
+
         if(ligne[i] == '\0') // Alors il faut remplir de ' '
         {
-            while(j < longueurMaxLigne + 2)
+            while(j < longueurMaxLigne)
             {
                 buffer[j] = ' ';
                 j++;
@@ -259,7 +220,7 @@ void PrintfLigne(int num, int debutLigne, char* ligne, int longueurMaxLigne)
             buffer[j] = ' ';
 
         buffer[j] = '\0';
-        strcat(buffer, "~~~~~~~~\n");
+        strcat(buffer, "~~~~~~~~~\n");
 
         printf(buffer);
     }
@@ -282,7 +243,7 @@ void AfficherSemaine(int Date[3])
 
     if(ptrTete != NULL)
     {
-        AfficherListe(ptrTete, 10, 70);
+        AfficherListe(ptrTete, DEBUT_LIGNE, LARGEUR_AFFICHAGE);
 
         DesallouerListe(&ptrTete);
     }

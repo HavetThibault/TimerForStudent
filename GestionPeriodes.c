@@ -153,8 +153,6 @@ void AfficherListe(struct PeriodeEtude* PtrTete, int debutLigne, int tailleLigne
 
         PeriodeToString(currentPeriode, UnePeriodeString);
         PrintfLigne(-1, debutLigne + 5, UnePeriodeString, tailleLigne - 10);
-
-        IHorizontal(NULL, tailleLigne + 2*debutLigne);
     }
 }
 

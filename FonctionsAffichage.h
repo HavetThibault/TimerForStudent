@@ -10,6 +10,9 @@
 #include "FonctionsUtilitaires.h"
 #include "GestionFichier.h"
 
+#define LARGEUR_AFFICHAGE 75
+#define DEBUT_LIGNE 10
+
 #define ETUDIER 1
 #define SEMAINE 2
 #define HEURE_ETUDES 3
