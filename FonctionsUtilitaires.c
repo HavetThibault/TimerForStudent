@@ -161,11 +161,10 @@ void DayToString(int day, char* dayString)
         case 6:
             strcpy(dayString, "Samedi");
             break;
-        case 7:
+        case 0:
             strcpy(dayString, "Dimanche");
             break;
         default:
-            printf("Day = %d\n", day);
             strcpy(dayString, "Probleme de date ?");
             break;
     }

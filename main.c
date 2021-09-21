@@ -4,11 +4,31 @@
 #include <windows.h>
 #include <winuser.h>
 #include <signal.h>
+#include <pthread.h>
 
 #include "FonctionsAffichage.h"
 #include "GestionPeriodes.h"
 #include "GestionFichier.h"
 #include "FonctionsUtilitaires.h"
+
+void FctAffichagePourcent(int * Wait);
+COORD GetCursorPosition() ;
+void SetCursorPosition(int XPos, int YPos) ;
+void HandlerSIGINT(int);
+
+COORD CoordPourcent;
+COORD CoordScanf;
+
+pthread_t threadAffichagePourcent;
+pthread_t threadPrincipal;
+
+pthread_mutex_t mutexCoordPourcent;
+pthread_mutex_t mutexCoordScanf;
+pthread_mutex_t mutexInputUtilisateur;
+
+int InputUtilisateur;
+int ChoixUniquementThreadAffichage;
+
 
 
 int main()
@@ -18,6 +38,16 @@ int main()
     struct PeriodeEtude UnePeriode;
     time_t TimeActuel;
     struct tm * MaTm;
+
+    pthread_mutex_init(&mutexCoordPourcent, NULL);
+    pthread_mutex_init(&mutexCoordScanf, NULL);
+    pthread_mutex_init(&mutexInputUtilisateur, NULL);
+
+    threadPrincipal = pthread_self();
+
+    signal(SIGINT, HandlerSIGINT);
+
+    system("color 8F");
 
     for(choix = -1 ; choix != EXIT;)
     {
@@ -29,60 +59,110 @@ int main()
 
                 MenuTheme(theme);
 
+                IHorizontal(NULL, 2*DEBUT_LIGNE + LARGEUR_AFFICHAGE);
+
                 InitPeriode(&UnePeriode, theme);
 
                 srand(time(0));
-                if(sousChoix == 1)
-                    wait = rand() % 26 + 45;
-                else
-                    wait = rand() % 26 + 105;
-
-                if(wait >= 60)
+                if(sousChoix == 1 || sousChoix == 2) // S'il vaut 3 alors CANCEl
                 {
-                    strcpy(Buffer1, "\n\n------ Travail pendant ");
-                    itoa((int)wait/60, Buffer2, 10);
-                    strcat(Buffer1, Buffer2);
+                    if(sousChoix == 1)
+                        wait = rand() % 26 + 45;
+                    else if(sousChoix == 2)
+                        wait = rand() % 26 + 105;
+                    if(wait >= 60)
+                    {
+                        strcpy(Buffer1, "------------------ Travail pendant ");
+                        itoa((int)wait/60, Buffer2, 10);
+                        strcat(Buffer1, Buffer2);
 
-                    if(((int)wait/60) == 1)
-                        strcat(Buffer1,  " heure et ");
+                        if(((int)wait/60) == 1)
+                            strcat(Buffer1,  " heure et ");
+                        else
+                            strcat(Buffer1,  " heures et ");
+
+                        itoa(wait % 60, Buffer2, 10);
+                        strcat(Buffer1, Buffer2);
+                        strcat(Buffer1,  " minutes ------------------");
+                    }
                     else
-                        strcat(Buffer1,  " heures et ");
+                    {
+                        strcpy(Buffer1, "------------------ Travail pendant ");
+                        itoa(wait % 60, Buffer2, 10);
+                        strcat(Buffer1, Buffer2);
+                        strcat(Buffer1,  " minutes ------------------");
+                    }
+                    PrintfLigne(-1, DEBUT_LIGNE, Buffer1, LARGEUR_AFFICHAGE);
+                    PrintfLigne(-1, DEBUT_LIGNE, " ", LARGEUR_AFFICHAGE);
+                    CoordPourcent = GetCursorPosition();
 
-                    itoa(wait % 60, Buffer2, 10);
-                    strcat(Buffer1, Buffer2);
-                    strcat(Buffer1,  " minutes ------\n");
+                    CoordPourcent.X += 50; // Pour avoir la ligne du '-' ci-dessous pour que le thread sache ou ecrire
+                    PrintfLigne(-1, DEBUT_LIGNE + 29, "-   -", LARGEUR_AFFICHAGE - 58);
+
+                    IHorizontal(NULL, 2*DEBUT_LIGNE + LARGEUR_AFFICHAGE);
+
+                    PrintfLigne(1, DEBUT_LIGNE, "Interrompre et sauvegarder", LARGEUR_AFFICHAGE);
+                    PrintfLigne(2, DEBUT_LIGNE, "Interrompre et supprimer", LARGEUR_AFFICHAGE);
+                    PrintfLigne(-1, DEBUT_LIGNE, NULL, LARGEUR_AFFICHAGE);
+                    CoordScanf = GetCursorPosition();
+                    CoordScanf.X += 38;
+                    PrintfLigne(-1, DEBUT_LIGNE+10, "CHOIX : ", LARGEUR_AFFICHAGE-20);
+
+                    IHorizontal(NULL, 2*DEBUT_LIGNE + LARGEUR_AFFICHAGE);
+
+                    pthread_create(&threadAffichagePourcent, NULL, (void * (*) (void *)) FctAffichagePourcent, NULL);
+
+                    pthread_mutex_lock(&mutexInputUtilisateur);
+                    InputUtilisateur = -1;
+                    pthread_mutex_unlock(&mutexInputUtilisateur);
+
+                    pthread_mutex_lock(&mutexCoordScanf);
+                    SetCursorPosition(CoordScanf.X, CoordScanf.Y);
+                    pthread_mutex_unlock(&mutexCoordScanf);
+
+                    pthread_mutex_lock(&mutexInputUtilisateur);
+                    for(int i = 1; i < 101 && InputUtilisateur == -1; i++)
+                    {
+                        pthread_mutex_unlock(&mutexInputUtilisateur);
+
+                        Sleep(wait*60); // * 60
+                        pthread_mutex_lock(&mutexCoordPourcent);
+                        SetCursorPosition(CoordPourcent.X, CoordPourcent.Y);
+                        printf("%d%% -", i);
+                        SetCursorPosition(CoordScanf.X, CoordScanf.Y);
+                        pthread_mutex_unlock(&mutexCoordPourcent);
+
+                        pthread_mutex_lock(&mutexInputUtilisateur);
+                    }
+
+                    printf("\n");
+
+                    if(InputUtilisateur == -1)
+                    {
+                        pthread_mutex_unlock(&mutexInputUtilisateur);
+
+                        ActualiserPeriode(&UnePeriode);
+                        AjouterPeriodeFichier(&UnePeriode);
+
+                        pthread_cancel(threadAffichagePourcent);
+                        ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
+                    }
+                    else
+                    {
+                        switch(InputUtilisateur)
+                        {
+                            case 1 :
+                                ActualiserPeriode(&UnePeriode);
+                                AjouterPeriodeFichier(&UnePeriode);
+
+                                break;
+
+                            case 2 :    // on ne veut pas enregistrer
+                                break;
+                        }
+                        pthread_mutex_unlock(&mutexInputUtilisateur);
+                    }
                 }
-                else
-                {
-                    strcpy(Buffer1, "------ Travail pendant ");
-                    itoa(wait % 60, Buffer2, 10);
-                    strcat(Buffer1, Buffer2);
-                    strcat(Buffer1,  " minutes ------\n");
-                }
-                MyPrintf(Buffer1);
-
-                for(i = 1; i < 100; i++)
-                {
-                    Sleep(wait*60*10);
-                    printf("%d%% \n", i);
-                }
-                ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
-
-                Sleep(1000);
-                printf("100%% \n");
-
-                ActualiserPeriode(&UnePeriode);
-                AjouterPeriodeFichier(&UnePeriode);
-
-                wait = rand()%6 + 10;
-                sprintf(Buffer1,"Travail termine ! On passe a la pause bien meritee de %d minutes ! \n", wait);
-                MyPrintf(Buffer1);
-
-                Sleep(wait*60*1000);
-
-                ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
-                MyPrintf("Pause terminee !\n");
-
                 break;
 
             case SEMAINE:
@@ -105,4 +185,43 @@ int main()
     }
 
     return 0;
+}
+
+void FctAffichagePourcent(int * Wait)
+{
+    int ChoixUniquementThreadAffichage = -1;
+
+    // Autorisation de mourrir sur demande et instantanément
+
+    pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
+    pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+
+    do
+    {
+        scanf("%d", &ChoixUniquementThreadAffichage);
+    }while(ChoixUniquementThreadAffichage != 1 && ChoixUniquementThreadAffichage != 2);
+
+    pthread_mutex_lock(&mutexInputUtilisateur);
+    InputUtilisateur = ChoixUniquementThreadAffichage;
+    pthread_mutex_unlock(&mutexInputUtilisateur);
+}
+
+COORD GetCursorPosition()
+{
+   HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+   PCONSOLE_SCREEN_BUFFER_INFO bufferInfo = malloc(sizeof(PCONSOLE_SCREEN_BUFFER_INFO));
+   GetConsoleScreenBufferInfo(h,bufferInfo);
+   return bufferInfo->dwCursorPosition;
+}
+
+void SetCursorPosition(int XPos, int YPos)
+{
+   COORD coord;
+   coord.X = XPos; coord.Y = YPos;
+   SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),coord);
+}
+
+void HandlerSIGINT(int signal)
+{
+    ChoixUniquementThreadAffichage = 2;
 }

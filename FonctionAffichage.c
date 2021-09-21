@@ -67,7 +67,7 @@ void IHorizontal(char* Message, int sizeEspace)
 
         buffer[0] = ' ';
         buffer[i] = '~';
-        if(strlen(Message) % 2 == 1)
+        if(strlen(Message) % 2 == 0)
             buffer[++i] = '~';
         buffer[i+1] = '\n';
         buffer[i+2] = '\0';
@@ -155,7 +155,7 @@ int MenuEtude()
 
     do
     {
-        IHorizontal("", LARGEUR_AFFICHAGE + 2*DEBUT_LIGNE);
+        IHorizontal(NULL, LARGEUR_AFFICHAGE + 2*DEBUT_LIGNE);
 
         PrintfLigne(1, DEBUT_LIGNE, "Periode de 1h", LARGEUR_AFFICHAGE);
         PrintfLigne(2, DEBUT_LIGNE, "Periode de 2h", LARGEUR_AFFICHAGE);
@@ -186,44 +186,72 @@ void PrintfLigne(int num, int debutLigne, char* ligne, int longueurMaxLigne)
     char buffer[150];
     int i = 0, j, k, initDebutLigne = debutLigne;
 
-    while(ligne[i] != '\0')
+    if(ligne == NULL)
     {
         printf("~~~~~~~~~");
 
-        for(j = 0; j < debutLigne; j++) // On ne compte pas les '~'
+        for(j = 0; j < (debutLigne*2 + longueurMaxLigne); j++)
             buffer[j] = ' ';
 
         buffer[j] = '\0';
         printf(buffer);
 
-        if(num > 0 && i == 0) // Si c'est la première itération
-        {
-            printf("%d. ", num);
-            debutLigne += 3;
-            longueurMaxLigne -= 3;
-        }
-
-        for(j = 0; j < longueurMaxLigne && ligne[i] != '\0'; j++, i++)
-            buffer[j] = ligne[i];
-
-
-        if(ligne[i] == '\0') // Alors il faut remplir de ' '
-        {
-            while(j < longueurMaxLigne)
-            {
-                buffer[j] = ' ';
-                j++;
-            }
-        }
-
-        for(k = 0; k < initDebutLigne; k++, j++)
-            buffer[j] = ' ';
-
-        buffer[j] = '\0';
-        strcat(buffer, "~~~~~~~~~\n");
-
-        printf(buffer);
+        printf("~~~~~~~~~\n");
     }
+    else if(strcmp(ligne, "") == 0)
+    {
+        printf("~~~~~~~~~");
+
+        for(j = 0; j < (debutLigne*2 + longueurMaxLigne); j++)
+            buffer[j] = ' ';
+
+        buffer[j] = '\0';
+        printf(buffer);
+
+        printf("~~~~~~~~~\n");
+    }
+    else
+    {
+        while(ligne[i] != '\0')
+        {
+            printf("~~~~~~~~~");
+
+            for(j = 0; j < debutLigne; j++) // On ne compte pas les '~'
+                buffer[j] = ' ';
+
+            buffer[j] = '\0';
+            printf(buffer);
+
+            if(num > 0 && i == 0) // Si c'est la première itération
+            {
+                printf("%d. ", num);
+                debutLigne += 3;
+                longueurMaxLigne -= 3;
+            }
+
+            for(j = 0; j < longueurMaxLigne && ligne[i] != '\0'; j++, i++)
+                buffer[j] = ligne[i];
+
+
+            if(ligne[i] == '\0') // Alors il faut remplir de ' '
+            {
+                while(j < longueurMaxLigne)
+                {
+                    buffer[j] = ' ';
+                    j++;
+                }
+            }
+
+            for(k = 0; k < initDebutLigne; k++, j++)
+                buffer[j] = ' ';
+
+            buffer[j] = '\0';
+            strcat(buffer, "~~~~~~~~~\n");
+
+            printf(buffer);
+        }
+    }
+
 }
 
 void AfficherSemaine(int Date[3])
