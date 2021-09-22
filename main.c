@@ -22,8 +22,6 @@ COORD CoordScanf;
 pthread_t threadAffichagePourcent;
 pthread_t threadPrincipal;
 
-pthread_mutex_t mutexCoordPourcent;
-pthread_mutex_t mutexCoordScanf;
 pthread_mutex_t mutexInputUtilisateur;
 
 int InputUtilisateur;
@@ -33,14 +31,14 @@ int ChoixUniquementThreadAffichage;
 
 int main()
 {
-    int wait, i, choix, sousChoix, Date[3];
+    int wait, choix, sousChoix, Date[3];
+    float wait1Pourcent;
     char Buffer1[100], Buffer2[100], theme[100];
     struct PeriodeEtude UnePeriode;
     time_t TimeActuel;
     struct tm * MaTm;
+    struct timespec Temps;
 
-    pthread_mutex_init(&mutexCoordPourcent, NULL);
-    pthread_mutex_init(&mutexCoordScanf, NULL);
     pthread_mutex_init(&mutexInputUtilisateur, NULL);
 
     threadPrincipal = pthread_self();
@@ -57,15 +55,16 @@ int main()
 
                 sousChoix = MenuEtude();
 
-                MenuTheme(theme);
-
-                IHorizontal(NULL, 2*DEBUT_LIGNE + LARGEUR_AFFICHAGE);
-
-                InitPeriode(&UnePeriode, theme);
-
-                srand(time(0));
                 if(sousChoix == 1 || sousChoix == 2) // S'il vaut 3 alors CANCEl
                 {
+                    MenuTheme(theme);
+
+                    IHorizontal(NULL, 2*DEBUT_LIGNE + LARGEUR_AFFICHAGE);
+
+                    InitPeriode(&UnePeriode, theme);
+
+                    srand(time(0));
+
                     if(sousChoix == 1)
                         wait = rand() % 26 + 45;
                     else if(sousChoix == 2)
@@ -116,21 +115,32 @@ int main()
                     InputUtilisateur = -1;
                     pthread_mutex_unlock(&mutexInputUtilisateur);
 
-                    pthread_mutex_lock(&mutexCoordScanf);
                     SetCursorPosition(CoordScanf.X, CoordScanf.Y);
-                    pthread_mutex_unlock(&mutexCoordScanf);
+
+                    // Calcul du temps pris pour faire 1 %
+                    wait1Pourcent = wait * 60 * 0.01 ;
+                    Temps.tv_sec = (int) (wait1Pourcent / 100);
+                    Temps.tv_nsec = (wait1Pourcent - Temps.tv_sec) * 1000 * 1000 * 10; // car on fait 100 nanosleep
+
+                    SetCursorPosition(CoordPourcent.X, CoordPourcent.Y);
+                    printf("0%% -");
+                    SetCursorPosition(CoordScanf.X, CoordScanf.Y);
 
                     pthread_mutex_lock(&mutexInputUtilisateur);
                     for(int i = 1; i < 101 && InputUtilisateur == -1; i++)
                     {
+                        for(int j = 0; j < 100 && InputUtilisateur == -1; j++)
+                        {
+                            pthread_mutex_unlock(&mutexInputUtilisateur);
+                            nanosleep(&Temps,NULL);
+                            pthread_mutex_lock(&mutexInputUtilisateur);
+                        }
                         pthread_mutex_unlock(&mutexInputUtilisateur);
 
-                        Sleep(wait*60); // * 60
-                        pthread_mutex_lock(&mutexCoordPourcent);
+
                         SetCursorPosition(CoordPourcent.X, CoordPourcent.Y);
                         printf("%d%% -", i);
                         SetCursorPosition(CoordScanf.X, CoordScanf.Y);
-                        pthread_mutex_unlock(&mutexCoordPourcent);
 
                         pthread_mutex_lock(&mutexInputUtilisateur);
                     }
