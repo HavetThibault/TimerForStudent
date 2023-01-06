@@ -126,7 +126,7 @@ void AfficherListe(struct PeriodeEtude* PtrTete, int debutLigne, int tailleLigne
     char UnePeriodeString[120], JourMois[40] = "", AncienJourMois[40] = "";
 
     if(PtrTete == NULL)
-        printf("Liste vide !\n");
+        IHorizontal("Aucune plage de travail ces 7 derniers jours", tailleLigne + 2*debutLigne);
     else
     {
         IHorizontal("Affichage d'une semaine", tailleLigne + 2*debutLigne);
@@ -155,6 +155,53 @@ void AfficherListe(struct PeriodeEtude* PtrTete, int debutLigne, int tailleLigne
         PrintfLigne(-1, debutLigne + 5, UnePeriodeString, tailleLigne - 10);
     }
 }
+
+
+void AfficherHeureJournaliere(struct PeriodeEtude* PtrTete, int debutLigne, int tailleLigne)
+{
+    struct PeriodeEtude* currentPeriode;
+    char heureTravail[40], JourMois[40] = "", AncienJourMois[40] = "";
+    int heures[2];
+    int totalDayWorkMinutes = 0;
+
+    if(PtrTete == NULL)
+        IHorizontal("Aucune plage de travail ces 7 derniers jours", tailleLigne + 2*debutLigne);
+    else
+    {
+        IHorizontal("Affichage des heures de la semaine", tailleLigne + 2*debutLigne);
+
+        currentPeriode = PtrTete;
+        while(currentPeriode != NULL)
+        {
+            strcpy(AncienJourMois, JourMois);
+            PeriodeToJourMois(currentPeriode, JourMois);
+
+            if(strcmp(AncienJourMois, JourMois) != 0)
+            {
+                if(totalDayWorkMinutes != 0)
+                {
+                    MinutesToHeure(totalDayWorkMinutes, heures);
+                    sprintf(heureTravail, "%d heure(s) et %d minutes", heures[0], heures[1]);
+                    PrintfLigne(-1, debutLigne + 5, heureTravail, tailleLigne - 10);
+                    totalDayWorkMinutes = 0;
+                }
+
+                PrintfLigne(-1, debutLigne, JourMois, tailleLigne);
+            }
+
+            totalDayWorkMinutes += GetMinutesOfWork(currentPeriode);
+            currentPeriode = currentPeriode->Next;
+        }
+
+        if(totalDayWorkMinutes != 0)
+        {
+            MinutesToHeure(totalDayWorkMinutes, heures);
+            sprintf(heureTravail, "%d heure(s) et %d minutes", heures[0], heures[1]);
+            PrintfLigne(-1, debutLigne + 5, heureTravail, tailleLigne - 10);
+        }
+    }
+}
+
 
 void DesallouerListe(struct PeriodeEtude** PtrTete)
 {
@@ -201,3 +248,28 @@ void PeriodeToJourMois(struct PeriodeEtude* UnePeriode, char* TheString)
     strcat(TheString, month);
 }
 
+void CopyDate(struct PeriodeEtude* periodeEtude, int* copiedDate)
+{
+    copiedDate[0] = periodeEtude->Date[0];
+    copiedDate[1] = periodeEtude->Date[1];
+    copiedDate[2] = periodeEtude->Date[2];
+}
+
+int GetMinutesOfWork(struct PeriodeEtude* periodeEtude)
+{
+    int minutesOfWork = 0;
+    if(periodeEtude->HeureFin[0] < periodeEtude->HeureDebut[0]) // Si jamais on etudie entre 23h et 1h du mat
+    {
+        minutesOfWork += (23 - periodeEtude->HeureDebut[0]) * 60;
+        minutesOfWork += 60 - periodeEtude->HeureDebut[1];
+
+        minutesOfWork += periodeEtude->HeureFin[0] * 60;
+        minutesOfWork += periodeEtude->HeureFin[1];
+    }
+    else
+    {
+        minutesOfWork += (60 * periodeEtude->HeureFin[0] + periodeEtude->HeureFin[1]) - (60 * periodeEtude->HeureDebut[0] + periodeEtude->HeureDebut[1]);
+    }
+
+    return minutesOfWork;
+}

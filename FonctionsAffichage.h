@@ -25,6 +25,7 @@ int MenuEtude();
 void MenuTheme(char* theme);
 void PrintfLigne(int num, int debutLigne, char* ligne, int longueurMaxLigne);
 void AfficherSemaine(int Date[3]); // Affiche les 7j précédent
+void AfficherHeuresSemaine(int Date[3]);
 void IHorizontal(char* Message, int sizeEspace);
 
 #endif // AFFICHAGE

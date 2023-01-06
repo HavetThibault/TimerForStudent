@@ -222,7 +222,7 @@ void PrintfLigne(int num, int debutLigne, char* ligne, int longueurMaxLigne)
             buffer[j] = '\0';
             printf(buffer);
 
-            if(num > 0 && i == 0) // Si c'est la première itération
+            if(num > 0 && i == 0) // Si c'est la premiere iteration
             {
                 printf("%d. ", num);
                 debutLigne += 3;
@@ -277,4 +277,26 @@ void AfficherSemaine(int Date[3])
     }
 }
 
+void AfficherHeuresSemaine(int Date[3])
+{
+    int i;
+    struct PeriodeEtude* ptrTete = NULL;
+
+    if(IsDateValid(Date))
+        RechercherPeriodeFichier(&ptrTete, Date);
+
+    for(i = 0; i < 6; i++)
+    {
+        DecrementerDate(Date);
+
+        RechercherPeriodeFichier(&ptrTete, Date);
+    }
+
+    if(ptrTete != NULL)
+    {
+        AfficherHeureJournaliere(ptrTete, DEBUT_LIGNE, LARGEUR_AFFICHAGE);
+
+        DesallouerListe(&ptrTete);
+    }
+}
 

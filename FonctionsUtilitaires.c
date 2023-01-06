@@ -58,7 +58,7 @@ int CompareDate(int D1[3], int D2[3])
 {
     int result;
 
-    if(D1[2] < D2[2]) // Comparaison année
+    if(D1[2] < D2[2]) // Comparaison annee
         result = -1;
     else if(D1[2] > D2[2])
         result = 1;
@@ -121,7 +121,7 @@ int IsDateValid(int Date[3])
     return 1;
 }
 
-int DecrementerDate(int Date[3])
+void DecrementerDate(int Date[3])
 {
     do
     {
@@ -214,4 +214,10 @@ void MonthToString(int month, char* monthstring)
             printf("Month = %d\n", month);
             strcpy(monthstring, "Probleme de mois ?");
     }
+}
+
+void MinutesToHeure(int minutes, int heure[2])
+{
+    heure[0] = minutes / 60;
+    heure[1] = minutes % 60;
 }

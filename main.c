@@ -3,8 +3,10 @@
 #include <time.h>
 #include <windows.h>
 #include <winuser.h>
+
 #include <signal.h>
 #include <pthread.h>
+#include <unistd.h>
 
 #include "FonctionsAffichage.h"
 #include "GestionPeriodes.h"
@@ -14,6 +16,7 @@
 void FctAffichagePourcent(int * Wait);
 COORD GetCursorPosition() ;
 void SetCursorPosition(int XPos, int YPos) ;
+void HandlerSignal(int sig);
 void HandlerSIGINT(int);
 
 COORD CoordPourcent;
@@ -26,6 +29,7 @@ pthread_mutex_t mutexInputUtilisateur;
 
 int InputUtilisateur;
 int ChoixUniquementThreadAffichage;
+
 
 
 
@@ -42,8 +46,6 @@ int main()
     pthread_mutex_init(&mutexInputUtilisateur, NULL);
 
     threadPrincipal = pthread_self();
-
-    signal(SIGINT, HandlerSIGINT);
 
     system("color 8F");
 
@@ -129,6 +131,7 @@ int main()
                     pthread_mutex_lock(&mutexInputUtilisateur);
                     for(int i = 1; i < 101 && InputUtilisateur == -1; i++)
                     {
+                        // Division de la periode d'attente en 100 (pour reagir au plus vite lorsque le thread qui prend en compte l'input a detecte une input
                         for(int j = 0; j < 100 && InputUtilisateur == -1; j++)
                         {
                             pthread_mutex_unlock(&mutexInputUtilisateur);
@@ -136,7 +139,6 @@ int main()
                             pthread_mutex_lock(&mutexInputUtilisateur);
                         }
                         pthread_mutex_unlock(&mutexInputUtilisateur);
-
 
                         SetCursorPosition(CoordPourcent.X, CoordPourcent.Y);
                         printf("%d%% -", i);
@@ -147,15 +149,19 @@ int main()
 
                     printf("\n");
 
-                    if(InputUtilisateur == -1)
+                    if(InputUtilisateur == -1) // Si le temps imparti est ecoule
                     {
                         pthread_mutex_unlock(&mutexInputUtilisateur);
+
+                        pthread_cancel(threadAffichagePourcent);
+                        ShowWindow(GetConsoleWindow(), SW_SHOW);
 
                         ActualiserPeriode(&UnePeriode);
                         AjouterPeriodeFichier(&UnePeriode);
 
-                        pthread_cancel(threadAffichagePourcent);
-                        ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
+                        Temps.tv_sec = 0;
+                        Temps.tv_nsec = 500000000;
+                        nanosleep(&Temps,NULL);
                     }
                     else
                     {
@@ -188,6 +194,19 @@ int main()
 
                 break;
 
+            case HEURE_ETUDES:
+
+                TimeActuel = time(NULL);
+                MaTm = localtime(&TimeActuel);
+
+                Date[0] = MaTm->tm_mday;
+                Date[1] = MaTm->tm_mon + 1;
+                Date[2] = MaTm->tm_year + 1900;
+
+                AfficherHeuresSemaine(Date);
+
+                break;
+
             case EXIT:
 
                 break;
@@ -197,11 +216,11 @@ int main()
     return 0;
 }
 
-void FctAffichagePourcent(int * Wait)
+void FctAffichagePourcent(int * Wait) // c'est plutot une fonction de saisie maintenant
 {
     int ChoixUniquementThreadAffichage = -1;
 
-    // Autorisation de mourrir sur demande et instantanément
+    // Autorisation de mourrir sur demande et instantanement
 
     pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
     pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
@@ -221,6 +240,7 @@ COORD GetCursorPosition()
    HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
    PCONSOLE_SCREEN_BUFFER_INFO bufferInfo = malloc(sizeof(PCONSOLE_SCREEN_BUFFER_INFO));
    GetConsoleScreenBufferInfo(h,bufferInfo);
+
    return bufferInfo->dwCursorPosition;
 }
 
@@ -231,7 +251,3 @@ void SetCursorPosition(int XPos, int YPos)
    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),coord);
 }
 
-void HandlerSIGINT(int signal)
-{
-    ChoixUniquementThreadAffichage = 2;
-}

@@ -25,11 +25,14 @@ void PeriodeToStringSansDate(struct PeriodeEtude* UnePeriode, char* TheString);
 void PeriodeToHeure(struct PeriodeEtude* UnePeriode, char* TheString);
 void PeriodeToString(struct PeriodeEtude* UnePeriode, char* TheString);
 void PeriodeToJourMois(struct PeriodeEtude* UnePeriode, char* TheString);
+void CopyDate(struct PeriodeEtude* periodeEtude, int* copiedDate);
+int GetMinutesOfWork(struct PeriodeEtude* periodeEtude);
 
 // Gestion liste
 void Ajouter(struct PeriodeEtude** PtrTete, struct PeriodeEtude* newPeriode);
 struct PeriodeEtude* LastPeriode(struct PeriodeEtude* PtrTete);
 void AfficherListe(struct PeriodeEtude* PtrTete, int debutLigne, int tailleLigne);
+void AfficherHeureJournaliere(struct PeriodeEtude* PtrTete, int debutLigne, int tailleLigne);
 void DesallouerListe(struct PeriodeEtude** PtrTete);
 
 // Gestion PeriodeEtude
